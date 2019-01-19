@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html class="reftest-wait">
+<title>Verify that calling pause immediately after playing works as expected.</title>
+<link rel="match" href="references/translated-box-ref.html">
+
+<script src="/common/reftest-wait.js"></script>
+<script src="/web-animations/testcommon.js"></script>
+<script src="common.js"></script>
+<style>
+#box {
+  width: 100px;
+  height: 100px;
+  background-color: #00ff00;
+}
+</style>
+
+<div id="box"></div>
+
+<script>
+registerPassthroughAnimator().then(async _ => {
+  const box = document.getElementById('box');
+  const effect = new KeyframeEffect(box,
+    { transform: ['translateY(100px)', 'translateY(200px)'] },
+    { duration: 100, iterations: 1 }
+  );
+
+  const animation = new WorkletAnimation('passthrough', effect);
+  animation.play();
+  // Immediately pausing animation should freeze the current time at 0.
+  animation.pause();
+  // Wait some time to ensure a paused animation actually freezes.
+  await waitForAsyncAnimationFrames(3);
+  takeScreenshot();
+});
+</script>
+</html>
